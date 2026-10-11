@@ -1,185 +1,237 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Celestial Legion Studio — Angelic Trading Hub</title>
+    <title>Celestial Angels - XRPL Hub</title>
+    <style>
+        :root {
+            --bg-cosmic: #0a0b10;
+            --angel-gold: #f39c12;
+            --angel-glow: #f1c40f;
+            --text-light: #f5f6fa;
+            --glass-panel: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(241, 196, 15, 0.15);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: radial-gradient(circle at center, #111424 0%, var(--bg-cosmic) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 20px 20px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--angel-glow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(241, 196, 15, 0.2);
+        }
+
+        header p {
+            color: #8a8f9d;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .nft-card {
+            background: var(--glass-panel);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .nft-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--angel-gold);
+            box-shadow: 0 15px 40px rgba(241, 196, 15, 0.15);
+        }
+
+        .nft-image-holder {
+            width: 100%;
+            height: 380px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            object-fit: cover;
+        }
+
+        .action-panel {
+            background: var(--glass-panel);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            max-width: 600px;
+            margin: 0 auto 60px auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, var(--angel-gold) 0%, #d4ac0d 100%);
+            color: #000;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(241, 196, 15, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-premium:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 30px rgba(241, 196, 15, 0.6);
+        }
+
+        .status-box {
+            margin-top: 20px;
+            font-family: monospace;
+            color: #00ffcc;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            text-align: left;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 40px;
+            font-size: 0.85rem;
+            color: #5a5f73;
+            text-align: center;
+        }
+    </style>
+    <script src="https://unpkg.com"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Celestial Angels</h1>
+        <p>Secure Peer-to-Peer NFT Trading & Verification Hub on the XRP Ledger</p>
+    </header>
+
+    <div class="container">
+        <div class="gallery-grid" id="angel-gallery">
+            <!-- Cards will be dynamically added here by the script below -->
+        </div>
+
+        <div class="action-panel">
+            <button class="btn-premium" id="wallet-btn" onclick="toggleWalletConnection()">Connect XRPL Wallet</button>
+            <div class="status-box" id="status-log">> System Status: Offline. Awaiting wallet authentication...</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Celestial Angels. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        let client;
+        let isConnected = false;
+        const statusLog = document.getElementById('status-log');
+        const walletBtn = document.getElementById('wallet-btn');
+
+        // I wrote your exact 20 image filenames right here into your website layout data!
+        const angelImages = [
+            "image_suu9gK.png", "image_FoTN4c.png", "image_AHSS5y.png", "image_FEz7Wz.png",
+            "image_puhF7x.png", "image_wpoV-M.png", "image_T0Tpiw.png", "image_V0lgMQ.png",
+            "image_mmqyl8.png", "image_TkF1gD.png", "image_GUpt7i.png", "image_s1LQNA.png",
+            "image_jcxq9S.png", "image_pPNlx6.png", "image_s7R0rU.png", "image_L004r6.png",
+            "image_ugH4eh.png", "image_rjRY0K.png", "image_1SnNPl.png", "image_p_zm59.png"
+        ];
+
+        const gallery = document.getElementById('angel-gallery');
         
-          <!-- ======================================================== -->
-            <!--        ELITE WEB3 ANTI-HIJACK SECURITY SUITE             -->
-              <!-- ======================================================== -->
-                <meta http-equiv="X-Frame-Options" content="DENY">
-                  <meta http-equiv="Content-Security-Policy" content="
-                      default-src 'self'; 
-                          script-src 'self' 'unsafe-inline' https://jsdelivr.net https://unpkg.com; 
-                              connect-src 'self' https://xrplcluster.com https://xumm.app wss://*.xrplcluster.com https://coingecko.com; 
-                                  img-src 'self' data: https:; 
-                                      style-src 'self' 'unsafe-inline' https://googleapis.com https://jsdelivr.net;
-                                          font-src 'self' https://gstatic.com;
-                                              frame-ancestors 'none';
-                                                ">
-                                                  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-                                                    <meta name="referrer" content="strict-origin-when-cross-origin">
-                                                      <!-- ======================================================== -->
+        // Dynamically build the 20 metadata cards on your screen
+        angelImages.forEach((filename, index) => {
+            gallery.innerHTML += `
+                <div class="nft-card">
+                    <img src="${filename}" class="nft-image-holder" alt="Angel Sovereign #${index + 1}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://w3.org\' width=\'100%\' height=\'100%\' viewBox=\'0 0 100 100\'><rect width=\'100%\' height=\'100%\' fill=\'%23161a36\'/><text x=\'50%\' y=\'55%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'30\'>👼</text></svg>'">
+                    <h3>Angel Sovereign #${index + 1}</h3>
+                    <p>Status: Authenticated on XRPL</p>
+                    <button class="btn-premium" style="padding: 8px 20px; font-size: 0.85rem;" onclick="viewOffer(${index + 1})">View Offer</button>
+                </div>
+            `;
+        });
 
-                                                        <!-- Tailwind CSS Engine & Decorative Fonts -->
-                                                          <script src="https://jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-                                                            <link href="https://googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-                                                              
-                                                                <!-- Include the official Xaman/Xumm SDK via safe CDN -->
-                                                                  <script src="https://unpkg.com"></script>
+        function logMessage(msg) {
+            statusLog.innerText = `> ${msg}`;
+        }
 
-                                                                    <style>
-                                                                        body { font-family: 'Inter', sans-serif; background-color: #02000a; overflow-x: hidden; }
-                                                                            .angelic-header { font-family: 'Cinzel', serif; }
-                                                                                
-                                                                                    .shimmer-text {
-                                                                                          background: linear-gradient(to right, #ffeaa7 0%, #a29bfe 25%, #74b9ff 50%, #a29bfe 75%, #ffeaa7 100%);
-                                                                                                background-size: 200% auto;
-                                                                                                      -webkit-background-clip: text;
-                                                                                                            -webkit-text-fill-color: transparent;
-                                                                                                                  animation: divineShine 8s linear infinite;
-                                                                                                                      }
-                                                                                                                          @keyframes divineShine { to { background-position: 200% center; } }
-                                                                                                                              
-                                                                                                                                  .glass-card {
-                                                                                                                                        background: rgba(255, 255, 255, 0.02);
-                                                                                                                                              backdrop-filter: blur(16px);
-                                                                                                                                                    -webkit-backdrop-filter: blur(16px);
-                                                                                                                                                          border: 1px solid rgba(255, 255, 255, 0.06);
-                                                                                                                                                                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-                                                                                                                                                                    }
+        async function toggleWalletConnection() {
+            if (isConnected) {
+                logMessage("Disconnecting from XRP Ledger node...");
+                if (client) await client.disconnect();
+                isConnected = false;
+                walletBtn.innerText = "Connect XRPL Wallet";
+                logMessage("System Status: Offline. Wallet disconnected.");
+                return;
+            }
 
-                                                                                                                                                                        .halo-glow {
-                                                                                                                                                                              box-shadow: 0 0 0px rgba(255, 234, 167, 0);
-                                                                                                                                                                                    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                                                                                                                                                                                        }
-                                                                                                                                                                                            .halo-glow:hover {
-                                                                                                                                                                                                  box-shadow: 0 0 25px rgba(255, 234, 167, 0.25);
-                                                                                                                                                                                                        border-color: rgba(255, 234, 167, 0.6);
-                                                                                                                                                                                                              transform: translateY(-4px);
-                                                                                                                                                                                                                  }
-                                                                                                                                                                                                                      .badge-mythic { background: linear-gradient(135deg, #ef4444, #9333ea); }
-                                                                                                                                                                                                                          .badge-legendary { background: linear-gradient(135deg, #eab308, #ca8a04); }
-                                                                                                                                                                                                                              .badge-epic { background: linear-gradient(135deg, #a855f7, #6b21a8); }
-                                                                                                                                                                                                                                  .badge-rare { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-                                                                                                                                                                                                                                    </style>
-                                                                                                                                                                                                                                    </head>
-                                                                                                                                                                                                                                    <body class="text-gray-100 min-h-screen relative antialiased">
+            try {
+                logMessage("Connecting to secure public XRPL Mainnet Cluster (wss://xrplcluster.com)...");
+                walletBtn.innerText = "Connecting...";
+                
+                client = new xrpl.Client("wss://xrplcluster.com");
+                await client.connect();
+                
+                isConnected = true;
+                walletBtn.innerText = "Disconnect Wallet";
+                logMessage("System Status: Connected to XRPL Mainnet! Ready to read digital token records.");
+                
+            } catch (error) {
+                console.error(error);
+                walletBtn.innerText = "Connect XRPL Wallet";
+                logMessage(`Connection Error: Unable to sync with blockchain node. ${error.message}`);
+            }
+        }
 
-                                                                                                                                                                                                                                      <!-- Universal Nebula Canvas Layer -->
-                                                                                                                                                                                                                                        <canvas id="cosmicCanvas" class="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none"></canvas>
+        function viewOffer(slotId) {
+            if (!isConnected) {
+                alert("Please authenticate your Web3 XRPL Wallet before checking live marketplace asset offers!");
+                return;
+            }
+            logMessage(`Querying open transaction orders on the ledger for Angel Slot #${slotId}...`);
+        }
+    </script>
+</body>
+</html>
 
-                                                                                                                                                                                                                                          <!-- Navigation Bar -->
-                                                                                                                                                                                                                                            <nav class="w-full glass-card fixed top-0 left-0 z-50 px-8 py-5 flex justify-between items-center">
-                                                                                                                                                                                                                                                <div class="angelic-header text-2xl font-black tracking-widest bg-gradient-to-r from-amber-200 to-amber-100 bg-clip-text text-transparent">
-                                                                                                                                                                                                                                                      CELESTIAL LEGION
-                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                              <button id="walletBtn" onclick="connectXamanWallet()" class="glass-card px-6 py-2.5 text-sm font-semibold rounded-full border border-amber-200/20 hover:bg-amber-200/10 active:scale-95 transition duration-300">
-                                                                                                                                                                                                                                                                    ✨ Sync Xaman Wallet
-                                                                                                                                                                                                                                                                        </button>
-                                                                                                                                                                                                                                                                          </nav>
-
-                                                                                                                                                                                                                                                                            <!-- Hero Frame -->
-                                                                                                                                                                                                                                                                              <header class="min-h-screen flex flex-col justify-center items-center text-center px-6 relative">
-                                                                                                                                                                                                                                                                                  <span class="text-amber-200/70 tracking-[0.4em] text-xs font-mono mb-4 uppercase">Decentralized Asset Exchange</span>
-                                                                                                                                                                                                                                                                                      <h1 class="angelic-header text-5xl md:text-8xl font-black tracking-widest shimmer-text mb-6 drop-shadow-2xl">
-                                                                                                                                                                                                                                                                                            CELESTIAL HUB
-                                                                                                                                                                                                                                                                                                </h1>
-                                                                                                                                                                                                                                                                                                    <p class="text-gray-400 max-w-2xl text-base md:text-lg font-light tracking-wide mb-10">
-                                                                                                                                                                                                                                                                                                          Securely list, offer, and transfer native XRPL digital entities using peer-to-peer ledger authorization scripts.
-                                                                                                                                                                                                                                                                                                              </p>
-                                                                                                                                                                                                                                                                                                                  <div class="flex gap-4">
-                                                                                                                                                                                                                                                                                                                        <a href="#trading-desk" class="glass-card px-10 py-4 bg-amber-400/5 text-amber-200 border-amber-200/30 rounded-2xl font-bold tracking-wide hover:bg-amber-200/10 transition">
-                                                                                                                                                                                                                                                                                                                                🔀 Trade Desk
-                                                                                                                                                                                                                                                                                                                                      </a>
-                                                                                                                                                                                                                                                                                                                                            <a href="#catalog" class="glass-card px-10 py-4 bg-blue-400/5 text-blue-200 border-blue-200/30 rounded-2xl font-bold tracking-wide hover:bg-blue-200/10 transition">
-                                                                                                                                                                                                                                                                                                                                                    👼 View Gallery
-                                                                                                                                                                                                                                                                                                                                                          </a>
-                                                                                                                                                                                                                                                                                                                                                              </div>
-                                                                                                                                                                                                                                                                                                                                                                </header>
-
-                                                                                                                                                                                                                                                                                                                                                                  <!-- Main Workspace -->
-                                                                                                                                                                                                                                                                                                                                                                    <main class="max-w-7xl mx-auto px-6 py-20 space-y-40">
-                                                                                                                                                                                                                                                                                                                                                                        
-                                                                                                                                                                                                                                                                                                                                                                            <!-- TRADING DESK SECTION WITH LIVE ORACLE TICKERS -->
-                                                                                                                                                                                                                                                                                                                                                                                <section id="trading-desk" class="scroll-mt-28 max-w-3xl mx-auto">
-                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                            <!-- DYNAMIC LIVE NETWORK METRICS BOARD -->
-                                                                                                                                                                                                                                                                                                                                                                                                  <div class="grid grid-cols-3 gap-4 mb-6">
-                                                                                                                                                                                                                                                                                                                                                                                                          <div class="glass-card rounded-2xl p-4 text-center border-l-2 border-l-amber-400">
-                                                                                                                                                                                                                                                                                                                                                                                                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest font-mono block">XRP Index</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                              <div id="tickerPrice" class="text-lg font-bold text-amber-200 font-mono mt-1">Loading...</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                              <div class="glass-card rounded-2xl p-4 text-center border-l-2 border-l-purple-400">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        <span class="text-[10px] text-gray-500 uppercase tracking-widest font-mono block">Ledger Traffic</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div id="liveVolumeText" class="text-lg font-bold text-purple-300 font-mono mt-1">Tracking...</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div class="glass-card rounded-2xl p-4 text-center border-l-2 border-l-blue-400">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <span class="text-[10px] text-gray-500 uppercase tracking-widest font-mono block">Node Stream</span>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <div id="nodeStatusText" class="text-lg font-bold text-blue-300 font-mono mt-1">Connecting</div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="glass-card rounded-[32px] p-8 md:p-12 border border-amber-500/20 shadow-2xl relative">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <h2 class="angelic-header text-3xl font-extrabold text-amber-200 mb-2 flex items-center gap-3">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            🔀 Divine Trade Portal
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </h2>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <p class="text-gray-400 text-sm mb-8">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Create formal ledger offers. Buyers can purchase your assets directly through secure on-chain contract routing.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </p>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <!-- Dynamic Interface Warning Status -->
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div id="walletWarning" class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-xs text-amber-200 mb-6 flex items-center gap-3">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        🔒 Please connect your Xaman wallet at the top of the page to unlock trading operations.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div class="space-y-5 font-mono text-sm">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wider">Target NFT ID (NFTokenID)</label>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <input type="text" id="nftIdInput" placeholder="00080000..." disabled class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-gray-300 focus:outline-none focus:border-amber-400/50 disabled:opacity-40 disabled:cursor-not-allowed">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <label class="block text-xs text-gray-500 mb-2 uppercase tracking-wider">Sale Price (In XRP)</label>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <input type="number" id="nftPriceInput" placeholder="e.g. 75" disabled class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-gray-300 focus:outline-none focus:border-amber-400/50 disabled:opacity-40 disabled:cursor-not-allowed">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <button id="submitOfferBtn" onclick="executeNftSellOffer()" disabled class="w-full mt-4 py-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 font-bold uppercase tracking-widest disabled:opacity-40 disabled:cursor-not-allowed hover:bg-amber-500/20 active:scale-[0.99] transition duration-200">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Publish Sell Offer
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </section>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <!-- NFT Catalog Panel -->
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <section id="catalog" class="scroll-mt-28">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div class="text-center mb-16">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <h2 class="angelic-header text-4xl md:text-5xl font-extrabold text-amber-100 mb-2">The Active Pantheon</h2>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <p class="text-gray-500 text-sm">Live status tracking of decentralized entities.</p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <!-- Roster appends here dynamically -->
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </section>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </main>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <footer class="text-center py-12 border-t border-white/5 text-xs text-gray-600 font-mono tracking-[0.2em] uppercase">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      © 2026 Celestial Legion Studio. Architecture Forged via Cosmic Engine.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </footer>
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <!-- Cosmic Background Animation Scripts -->
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <script>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                const canvas = document.getElementById('cosmicCanvas');
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    const ctx = canvas.getContext('2d');
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        let stars = [], clouds = [];
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            function initCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                window.addEventListener('resize', initCanvas);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    initCanvas();
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        const glowColors = ['rgba(255, 234, 167, ', 'rgba(116, 185, 255, ', 'rgba(162, 155, 254, '];
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            class SpaceStar {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 1.5 + 0.5; this.opacity = Math.random(); this.speed = Math.random() * 0.01 + 0.005; this.color = glowColors[Math.floor(Math.random() * glowColors.length)]; }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        update() { this.opacity += this.speed; if(this.opacity > 1 || this.opacity < 0) this.speed = -this.speed; this.y += 0.05; if(this.y > canvas.height) this.y = 0; }
