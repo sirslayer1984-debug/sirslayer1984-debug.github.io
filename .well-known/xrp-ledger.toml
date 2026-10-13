@@ -1,0 +1,15 @@
+# Official XRP Ledger Domain Authentication Blueprint
+# Verified for Celestial Angels NFT Ecosystem
+
+[METADATA]
+org_name = "Celestial Angels"
+org_url = "https://github.io"
+description = "Secure Peer-to-Peer 20-Asset NFT Trading & Verification Hub on the XRP Ledger"
+
+[[ACCOUNTS]]
+address = "radUa49ojcUsJaXDjSZQ7yaRhdCNMcExex"
+description = "Primary Creator & Minters Wallet"
+
+[[TOKENS]]
+issuer = "radUa49ojcUsJaXDjSZQ7yaRhdCNMcExex"
+network = "mainnet"
